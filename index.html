@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FastAPI Chat</title>
+</head>
+<body>
+    <h1>Chat</h1>
+    <input type="text" id="username" placeholder="Username">
+    <input type="text" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <div id="messages"></div>
+    <input type="text" id="message" placeholder="Type a message">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        let ws;
+        let token;
+
+        async function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            const response = await fetch("http://127.0.0.1:8000/token", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+            token = data.access_token;
+            ws = new WebSocket(`ws://127.0.0.1:8000/chat?token=${token}`);
+            ws.onmessage = (event) => {
+                const msg = JSON.parse(event.data);
+                const messages = document.getElementById("messages");
+                messages.innerHTML += `<p>${msg.username}: ${msg.content}</p>`;
+            };
+        }
+
+        function sendMessage() {
+            const message = document.getElementById("message").value;
+            ws.send(JSON.stringify({ content: message }));
+            document.getElementById("message").value = "";
+        }
+    </script>
+</body>
+</html>
