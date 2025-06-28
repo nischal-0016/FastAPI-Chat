@@ -2,7 +2,7 @@ from fastapi.testclient import TestClient
 from main import app, active_connections
 from database import engine, Base, SessionLocal
 import pytest
-import json  # Added for json.dumps
+import json  
 from websockets import connect
 
 client = TestClient(app)
@@ -45,6 +45,6 @@ async def test_websocket_chat():
     )
     token = token_response.json()["access_token"]
     async with connect(f"ws://127.0.0.1:8000/chat?token={token}") as ws:
-        await ws.send(json.dumps({"content": "Hello"}))  # Changed send_json to send with json.dumps
+        await ws.send(json.dumps({"content": "Hello"})) 
         response = await ws.recv()
         assert "Hello" in response
