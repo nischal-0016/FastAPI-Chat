@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, HTTPException, WebSocket
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from database import init_db, get_db, UserDB, MessageDB
@@ -6,6 +7,8 @@ from auth import hash_password, create_access_token, get_current_user, verify_pa
 import time
 
 app = FastAPI()
+
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 class UserCreate(BaseModel):
     username: str
@@ -56,8 +59,15 @@ async def chat_endpoint(websocket: WebSocket, token: str, db: Session = Depends(
             for connection in active_connections:
                 await connection.send_json({"username": message.username, "content": message.content})
     except Exception as e:
-        active_connections.remove(websocket)
-        await websocket.close()
+        print("WebSocket disconnected:", e)
+    finally:
+        if websocket in active_connections:
+            active_connections.remove(websocket)
+        try:
+            await websocket.close()
+        except RuntimeError:
+            pass  
+
 
 @app.get("/messages/", response_model=list[Message])
 async def get_messages(db: Session = Depends(get_db)):
