@@ -4,34 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        #chatMessages { height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; }
-        #messageInput { width: 80%; }
-        #loginForm, #chatForm { margin: 20px; }
-        #roomSelection { margin: 20px; }
+        #chatMessages {
+            height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #6b7280 #e5e7eb;
+        }
+        #chatMessages::-webkit-scrollbar {
+            width: 8px;
+        }
+        #chatMessages::-webkit-scrollbar-track {
+            background: #e5e7eb;
+        }
+        #chatMessages::-webkit-scrollbar-thumb {
+            background: #6b7280;
+            border-radius: 4px;
+        }
+        .message {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            max-width: 80%;
+        }
+        .message .username {
+            font-weight: 600;
+            color: #1f2937;
+        }
+        .message .content {
+            word-break: break-word;
+        }
     </style>
 </head>
-<body>
-    <div id="loginForm">
-        <h2>Login</h2>
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="login()">Login</button>
-    </div>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-6">
+        <div id="loginForm">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Welcome Back</h2>
+            <input type="text" id="username" placeholder="Username" class="w-full p-3 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="password" id="password" placeholder="Password" class="w-full p-3 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <button onclick="login()" class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition duration-200">Login</button>
+        </div>
 
-    <div id="roomSelection" style="display: none;">
-        <h2>Chat Room</h2>
-        <select id="room">
-            <option value="room1">Room 1</option>
-            <option value="room2">Room 2</option>
-        </select>
-        <button onclick="joinRoom()">Join Room</button>
-    </div>
+        <div id="roomSelection" class="hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4 text-center">Choose a Chat Room</h2>
+            <select id="room" class="w-full p-3 mb-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <option value="room1">Room 1</option>
+                <option value="room2">Room 2</option>
+            </select>
+            <button onclick="joinRoom()" class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition duration-200">Join Room</button>
+        </div>
 
-    <div id="chatForm" style="display: none;">
-        <div id="chatMessages"></div>
-        <input type="text" id="messageInput" placeholder="Type a message">
-        <button onclick="sendMessage()">Send</button>
+        <div id="chatForm" class="hidden">
+            <div id="chatMessages" class="bg-gray-50 p-4 rounded-lg mb-4"></div>
+            <div class="flex gap-2">
+                <input type="text" id="messageInput" placeholder="Type a message" class="flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <button onclick="sendMessage()" class="bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition duration-200">Send</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -75,7 +107,8 @@
                 const message = JSON.parse(event.data);
                 const chatMessages = document.getElementById('chatMessages');
                 const messageElement = document.createElement('div');
-                messageElement.textContent = `${message.username}: ${message.content}`;
+                messageElement.className = 'message bg-blue-100';
+                messageElement.innerHTML = `<span class="username">${message.username}</span><span class="content">${message.content}</span>`;
                 chatMessages.appendChild(messageElement);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             };
@@ -95,7 +128,6 @@
                 messageInput.value = '';
             }
         }
-
 
         document.getElementById('messageInput').addEventListener('keypress', (event) => {
             if (event.key === 'Enter') {
